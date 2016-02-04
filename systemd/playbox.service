@@ -1,0 +1,8 @@
+[Unit]
+Description=playbox
+
+[Service]
+ExecStart=/home/pi/playbox/playbox.rb
+
+[Install]
+WantedBy=multi-user.target
