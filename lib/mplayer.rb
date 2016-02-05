@@ -1,10 +1,12 @@
 require_relative "gpio"
 
 module MPlayer
+  # plays the given file_path by forking a process with mplayer.
+  # if there was a previous start of such a process, it will be killed.
   def self.play(file_path)
     self.kill_previous
     @pid = fork do
-      exec "/usr/bin/mplayer --really-quiet #{file_path}" # >/dev/null 2>/dev/null
+      exec("/usr/bin/mplayer --really-quiet #{file_path}") # >/dev/null 2>/dev/null
     end
   end
   

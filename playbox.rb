@@ -22,15 +22,21 @@ def volume_down
 end
 
 # no will be 1..4
-def play(no)
-  file_to_play = File.expand_path("../sounds/#{no}.mp3", __FILE__)
+def play(file_name)
+  file_to_play = File.expand_path("../sounds/#{file_name}.mp3", __FILE__)
   puts "playing #{file_to_play}"
   MPlayer.play(file_to_play)
 end
 
 # press right then left red button
 def shutdown
+  play("shutdown")
+  sleep 5
   `sudo shutdown -h 0`
+  cleanup
+end
+
+def cleanup
   GPIO.stop
 end
 
@@ -51,11 +57,12 @@ end
 
 # make sure to shutdown nicely when the service goes down (or CTRL-C is pressed)
 Signal.trap("INT") do
-  shutdown
+  cleanup
 end
 Signal.trap("TERM") do
-  shutdown
+  cleanup
 end
 
 puts "started..."
+play("boot")
 GPIO.wait
