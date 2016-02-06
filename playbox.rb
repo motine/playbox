@@ -1,4 +1,12 @@
 #!/usr/bin/env ruby
+
+# PLEASE NOTE:
+# I wanted to try something out here:
+# In this project I use almost exclusivly shell calls to perform external actions.
+# This is usually not my style, but I wanted to see what the downsides are.
+# I must say there were not so many, except that I have to spwan a new thread for each button.
+# This and the constant polling is quite heavy in the performance. Apart from this, it works quite stable.
+
 require_relative "lib/gpio"
 require_relative "lib/mplayer"
 require_relative "lib/volume"
@@ -40,6 +48,7 @@ def cleanup
   GPIO.stop
 end
 
+# actually hook up the buttons
 volup = GPIO::Button.new(0) do
   volume_up
 end

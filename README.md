@@ -1,105 +1,99 @@
 # playbox
-## Installation
 
+An old wine box with four buttons for my son. Now, he can listen to music when he wants.
+There are four buttons to play mp3s and two buttons for controlling volume (up/down).
 
-Setup Raspberry Pi with [setup wifi](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-3-network-setup/setting-up-wifi-with-occidentalis)
-find the IP with ifconfig (see wlan0)
-Also make sure to run `raspi-config` and extend the filesystem.
+![](doc/main.jpg)
+
+- When you plugin power, the system will need a few seconds to come up. When the box is ready, it will play a sound.
+- You can press any of the four buttons and the respective mp3 in the sounds folder will be played.
+- You can turn the volume up and down.
+- If you hold volume up and then press volume down, the system will shutdown (a sound will be played).  
+  Wait 5 seconds and then you can safely unplug power.
+
+## Needed parts
+
+- Any casing (I had an old wine case lying around)
+- Raspberry Pi with SD-Card (doesn't matter which one)
+- optionally USB Wifi Adapter for more convenient access
+- Loudspeaker (USB-powered)
+- Six buttons
+- 1 LED, 300 Ohm resistor
+- Wires
+
+## Hardware
+
+Find the [pinout](http://pi4j.com/images/p1header.png) here and then solder everything as depicted in the following diagram:
+
+![](doc/circuit.jpg)
+
+## Software installation
+
+Install Raspberry Pi's SD card [with Raspbian](https://www.raspberrypi.org/help/noobs-setup/) and [setup wifi](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-3-network-setup/setting-up-wifi-with-occidentalis).
+Find the IP with `ifconfig` (see `wlan0` interface) and ssh into the machin (user: `pi`, pass `raspberry`).
+Then run `sudo raspi-config` and extend the filesystem.
+
+Then you can checkout the code and install the dependencies:
 
 ```bash
 sudo aptitude update
-sudo aptitude install mplayer ruby-dev
+sudo aptitude install mplayer ruby-dev git
 sudo gem install bundler
-# check out the code
-bundler install
-./playbox.rb
 
-# install the service
+cd
+git clone https://github.com/motine/playbox.git
+cd playbox
+bundler install
+# now copy your mp3s into the sounds folder (named 1.mp3, 2.mp3, ...)
+./playbox.rb # test, hit CTRL-C if it works
+
+# If you want the playbox come up automatically after boot, install it as a systemd service
 sudo cp systemd/playbox.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable playbox
 # start testing
 sudo systemctl start playbox
-sudo systemctl stop playbox
 ```
 
-## Stuff
 
-wget https://upload.wikimedia.org/wikipedia/commons/9/96/Beethoven_Moonlight_sonata_sequenced.ogg
-wget http://download.wavetlan.com/SVV/Media/HTTP/WAV/Media-Convert/Media-Convert_test2_PCM_Mono_VBR_8SS_48000Hz.wav
+## Notes
 
-amixer controls # find the route
-amixer cset numid=3 1 # set to the the microphone jack
-
-aplay ...wav
-
-alsamixer
-
-
-PinOut
-https://www.element14.com/community/servlet/JiveServlet/previewBody/73950-102-4-309126/GPIO_Pi2.png?01AD=3BUVhNU8IlTFPkE0Olr7klHnCIgN9ebNH8yLA36nhHGcY9tfoMdeL6g&01RI=3606EE1B660EB0A&01NA=
-
-
-check with watch gpio readall
-2..5 - white
-0..1 - red
-6 - led
+There are some commands I needed during development, to see what is going on:
 
 ```bash
-gpio mode 0 up
-gpio mode 0..5 up
+amixer controls # find the route
+amixer cset numid=3 1 # set to the the microphone jack
+aplay some.wav # play a waveform
+alsamixer # start the visual mixer
+
+# setup pins it manually
+gpio mode 0 up # 0..5
 gpio mode 6 out
 gpio write 6 1
-
-# ask to export the pin
-echo 1 > /sys/class/gpio/export # Export/Unexport pins via the /sys/class/gpio interface, where they will then be available to user programs (that then do not need to be run as root or with sudo)
-
+gpio readall
 ```
 
+## Time
 
-https://www.kernel.org/doc/Documentation/gpio/sysfs.txt
-
-thanks to the great work of: https://github.com/WiringPi/WiringPi (i read the code for better understanding)
-also thanks to [...](https://github.com/jwhitehorn/pi_piper/blob/develop/lib/pi_piper/bcm2835.rb)
-
-
-
-
-
-## why gpio shell command
-
-i had a hard time to figure out
-
-```ruby
-#!/usr/bin/env ruby
-# if you get "Device or resource busy", run: sudo gpio unexportall
-`gpio unexportall` # fix unclean exit of pi_piper
-require 'rubygems'
-require 'pi_piper'
-# info here: https://github.com/jwhitehorn/pi_piper
-
-PiPiper::watch pin: 18, pull: :up, trigger: :falling do # did not enable the pull up resistor
-  puts "Volume Down"
-end
+```
+2h Soldering
+2h Building (drilling, dremel, etc.)
+2.5h Programming
+1.5h Documentation (texts, photos)
 ```
 
-```ruby
-#!/usr/bin/env ruby
-require 'rubygems'
-require 'bundler/setup'
-require 'wiringpi2'
+## Assembly
 
-TEST_PINS = (0..10).to_a
-io = WiringPi::GPIO.new do |gpio|
-  # gpio.pin_mode(0, WiringPi::OUTPUT)
-  TEST_PINS.each do |pin|
-    gpio.pull_up_dn_control(pin, WiringPi::PUD_UP) # would not pull up
-    gpio.pin_mode(pin, WiringPi::INPUT)
-  end
-end
-100.times do
-  state = TEST_PINS.collect { |pin| io.digital_read(pin) }
-  p state
-  io.delay(100)
-end
-```
+![](doc/solder_led1.jpg)
+![](doc/solder_led2.jpg)
+![](doc/solder_ground.jpg)
+![](doc/inside.jpg)
+![](doc/gpio.jpg)
+![](doc/cutout1.jpg)
+![](doc/cutout2.jpg)
+![](doc/cutout3.jpg)
+![](doc/cutout4.jpg)
+![](doc/glue1.jpg)
+![](doc/glue2.jpg)
+![](doc/speaker.jpg)
+![](doc/back.jpg)
