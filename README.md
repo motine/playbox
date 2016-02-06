@@ -27,6 +27,8 @@ Find the [pinout](http://pi4j.com/images/p1header.png) here and then solder ever
 
 ![](doc/circuit.jpg)
 
+**Please note that I am using the internal pull-up resistors of for the switches.**
+
 ## Software installation
 
 Install Raspberry Pi's SD card [with Raspbian](https://www.raspberrypi.org/help/noobs-setup/) and [setup wifi](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-3-network-setup/setting-up-wifi-with-occidentalis).
