@@ -11,6 +11,12 @@ require_relative "lib/gpio"
 require_relative "lib/mplayer"
 require_relative "lib/volume"
 
+SOUNDS_PATH = File.expand_path("../sounds", __FILE__)
+
+def get_path_for_sound(base_file_name)
+  return File.join(SOUNDS_PATH, "#{base_file_name}.mp3")
+end
+
 # make the LED turn on when the program starts and turn off when it ends
 led = GPIO::Pin.new(6, :out)
 led.write(1)
@@ -29,16 +35,31 @@ def volume_down
   Volume.down
 end
 
+$next_tracks = Array.new(4,1) # which track shall be played next
+# checks in $next_tracks which track shall now be played.
+# it will assemble the file name after following pattern "BUTTON_TRACK.mp3" (e.g. "1_2.mp3", button one was pressed the second time)
+# if the given file does not exist, the entry for the button_no in $next_tracks will be reset to 1 and play_track will be called again
 # no will be 1..4
+def play_track(button_no)
+  file_to_play = get_path_for_sound("#{button_no}_#{$next_tracks[button_no-1]}")
+  if File.exist?(file_to_play)
+    play(file_to_play)
+    return
+  end
+  # the file did not exist, so we need to reset to 1
+  $next_tracks[button_no-1] = 1
+  play_track(button_no)
+end
+
+# play will append mp3
 def play(file_name)
-  file_to_play = File.expand_path("../sounds/#{file_name}.mp3", __FILE__)
-  puts "playing #{file_to_play}"
-  MPlayer.play(file_to_play)
+  puts "playing #{file_name}"
+  MPlayer.play(file_name)
 end
 
 # press right then left red button
 def shutdown
-  play("shutdown")
+  play(get_path_for_sound("shutdown"))
   sleep 5
   `sudo shutdown -h 0`
   cleanup
@@ -60,7 +81,7 @@ end
 
 4.times do |i|
   GPIO::Button.new(2+i) do
-    play(4-i)
+    play_track(4-i)
   end
 end
 
@@ -73,5 +94,5 @@ Signal.trap("TERM") do
 end
 
 puts "started..."
-play("boot")
+play(get_path_for_sound("boot"))
 GPIO.wait
