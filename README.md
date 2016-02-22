@@ -80,7 +80,7 @@ gpio readall
 ```
 2h Soldering
 2h Building (drilling, dremel, etc.)
-2.5h Programming
+3.5h Programming
 1.5h Documentation (texts, photos)
 ```
 

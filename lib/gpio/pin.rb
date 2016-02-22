@@ -1,8 +1,8 @@
 module GPIO
-  # Encapsulates the gpio command line tool for setting up, reading and writing pins.
+  # (Thinly) Encapsulates the gpio command line tool for setting up, reading and writing pins.
   class Pin
-    # pin shall be the number of the GPIO pin
-    # mode may be :in, :out or :up (for pull up resistor activated)
+    # @param pin [Number] shall be the number of the GPIO pin
+    # @param mode [Symbol] may be :in, :out or :up (for pull up resistor activated)
     def initialize(pin, mode)
       # TODO argument checking
       @pin = pin

@@ -1,6 +1,8 @@
 require 'thread'
 Thread.abort_on_exception=true
 
+# A little module to run/terminate a main loop (wait/stop).
+# Other modules can register callbacks (`register_cleanup_callback`) to be executed when the main loop was marked for termination.
 module GPIO
   # Blocks registered here will be called after stop was called
   def self.register_cleanup_callback(&block)
